@@ -1,0 +1,18 @@
+{
+    "versionLabel": "1.0",
+    "uuid": "58769c6a-8d97-492b-8a10-f7e224f6e47e",
+    "appKeys": {},
+    "longName": "WatchPhone",
+    "versionCode": 1,
+    "capabilities": [
+        ""
+    ],
+    "shortName": "WatchPhone",
+    "companyName": "trzombie",
+    "watchapp": {
+        "watchface": true
+    },
+    "resources": {
+        "media": []
+    }
+}
