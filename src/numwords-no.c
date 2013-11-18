@@ -1,4 +1,4 @@
-#include "num2words-no.h"
+#include "numwords-no.h"
 #include "string.h"
 
 static const char* const ONES[] = {
@@ -10,7 +10,7 @@ static const char* const ONES[] = {
   "fem",
   "seks",
   "sju",
-  "åtte",
+  "Ã¥tte",
   "ni"
 };
 
@@ -22,7 +22,7 @@ static const char* const TEENS[] ={
   "fjorten",
   "femten",
   "seksten",
-  "søtten",
+  "sÃ¸tten",
   "atten",
   "nitten"
 };
@@ -32,11 +32,11 @@ static const char* const TENS[] = {
   "ti",
   "tjue",
   "tretti",
-  "førti",
+  "fÃ¸rti",
   "femti",
   "seksti",
-  "søtti",
-  "åtti",
+  "sÃ¸tti",
+  "Ã¥tti",
   "nitti"
 };
 
