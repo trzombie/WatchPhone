@@ -1,9 +1,9 @@
 #include "pebble.h"
 #include "numwords-no.h"
-	
+    
 #define BUFFER_SIZE 28
 #define BATTERY_LIMIT 20
-	
+    
 static struct CommonWordsData {
   TextLayer *label1;
   TextLayer *label2;
@@ -13,7 +13,7 @@ static struct CommonWordsData {
 
   bool connected;
   uint8_t batteryState;
-	
+    
   Window *window;
   char buffer1[BUFFER_SIZE];
   char buffer2[BUFFER_SIZE];
@@ -24,7 +24,7 @@ static struct CommonWordsData {
 static void updateTime(struct tm* t) {
   /* time_to_words(t->tm_hour, t->tm_min, s_data.buffer, BUFFER_SIZE); */
   time_to_3words(t->tm_hour, t->tm_min, s_data.buffer1, s_data.buffer2, s_data.buffer3, BUFFER_SIZE);
-	
+    
   text_layer_set_text(s_data.label1, s_data.buffer1);
   text_layer_set_text(s_data.label2, s_data.buffer2);
   text_layer_set_text(s_data.label3, s_data.buffer3);
@@ -36,23 +36,23 @@ static void updateBatteryState()
 {
   BatteryChargeState state = battery_state_service_peek();
   bool changed = (state.charge_percent < BATTERY_LIMIT && BATTERY_LIMIT < s_data.batteryState) ||
-	  (s_data.batteryState < BATTERY_LIMIT && BATTERY_LIMIT < state.charge_percent);
+      (s_data.batteryState < BATTERY_LIMIT && BATTERY_LIMIT < state.charge_percent);
   
   s_data.batteryState = state.charge_percent;
   if (changed)
-	  updateStatus();
+      updateStatus();
 }
 
-static void toggle_connectionBackground(bool reset)
+static void toggleConnectionBackground(bool reset)
 {
   static bool bonw = false;
  
   if (reset)
-	  bonw = false;
-	
+      bonw = false;
+    
   if (bonw)
   {
-	text_layer_set_text_color(s_data.connection, GColorBlack);
+    text_layer_set_text_color(s_data.connection, GColorBlack);
     text_layer_set_background_color(s_data.connectionBackground, GColorWhite);
   } 
   else
@@ -64,16 +64,16 @@ static void toggle_connectionBackground(bool reset)
 }
 
 
-static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
+static void handleMinuteTick(struct tm *tick_time, TimeUnits units_changed) {
   updateTime(tick_time);
   updateBatteryState();
 }
 
-static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
+static void handleSecondTick(struct tm *tick_time, TimeUnits units_changed) {
   if (units_changed != SECOND_UNIT)
-	  handle_minute_tick(tick_time, units_changed);
+      handleMinuteTick(tick_time, units_changed);
   if (!s_data.connected || s_data.batteryState < BATTERY_LIMIT)
-    toggle_connectionBackground(false);
+    toggleConnectionBackground(false);
 }
 
 static void updateStatus()
@@ -81,42 +81,42 @@ static void updateStatus()
     if (s_data.connected)
     {
       if (BATTERY_LIMIT<s_data.batteryState)
-		strcpy(s_data.bufferconnection, "connected"); 
-	  else snprintf(s_data.bufferconnection, BUFFER_SIZE, "LOW BATTERY (%i)", s_data.batteryState);
+        strcpy(s_data.bufferconnection, "connected"); 
+      else snprintf(s_data.bufferconnection, BUFFER_SIZE, "LOW BATTERY (%i)", s_data.batteryState);
     } 
-	else
+    else
     {
-	  if(BATTERY_LIMIT<s_data.batteryState)
-		strcpy(s_data.bufferconnection, "DISCONNECTED");
+      if(BATTERY_LIMIT<s_data.batteryState)
+        strcpy(s_data.bufferconnection, "DISCONNECTED");
       else snprintf(s_data.bufferconnection, BUFFER_SIZE, "DISC | LOW(%i)", s_data.batteryState);
-	}
-	text_layer_set_text(s_data.connection, s_data.bufferconnection);
-	
-	if (s_data.connected)
-	{
-		vibes_short_pulse();
-		toggle_connectionBackground(true);
-		tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
-	}
-	else 
-	{
-		// Vibe pattern: ON for 200ms, OFF for 100ms, etc
-		static const uint32_t const segments[] = { 200, 100, 200, 100, 200, 100, 200, 100, 200 };
-		VibePattern pat = { 
-			.durations = segments,
-			.num_segments = ARRAY_LENGTH(segments),
-		};
-		vibes_enqueue_custom_pattern(pat);
-		tick_timer_service_subscribe(SECOND_UNIT, &handle_second_tick);
-	}
+    }
+    text_layer_set_text(s_data.connection, s_data.bufferconnection);
+    
+    if (s_data.connected)
+    {
+        vibes_short_pulse();
+        toggleConnectionBackground(true);
+        tick_timer_service_subscribe(MINUTE_UNIT, &handleMinuteTick);
+    }
+    else 
+    {
+        // Vibe pattern: ON for 200ms, OFF for 100ms, etc
+        static const uint32_t const segments[] = { 200, 100, 200, 100, 200, 100, 200, 100, 200 };
+        VibePattern pat = { 
+            .durations = segments,
+            .num_segments = ARRAY_LENGTH(segments),
+        };
+        vibes_enqueue_custom_pattern(pat);
+        tick_timer_service_subscribe(SECOND_UNIT, &handleSecondTick);
+    }
 }
 
-static void handle_bluetooth(bool connected) 
+static void handleBluetooth(bool connected) 
 {
   if (s_data.connected != connected)
   {
     s_data.connected = connected;
-	updateStatus();
+    updateStatus();
   }
 }
 
@@ -128,7 +128,7 @@ TextLayer* createLayer(Layer* root, int ofs, int w, GFont font)
   text_layer_set_font(layer, font);
   layer_set_clips(text_layer_get_layer(layer), false);
   layer_add_child(root, text_layer_get_layer(layer));
-	
+    
   return layer;
 }
 
@@ -149,8 +149,8 @@ static void do_init(void) {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
   updateTime(t);
-  tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);	
-	
+  tick_timer_service_subscribe(MINUTE_UNIT, &handleMinuteTick);    
+    
   s_data.connected = bluetooth_connection_service_peek();
   s_data.batteryState = 100;
 
@@ -164,21 +164,21 @@ static void do_init(void) {
   layer_add_child(root_layer, text_layer_get_layer(s_data.connectionBackground));
   
   updateStatus();
-  bluetooth_connection_service_subscribe(&handle_bluetooth);
+  bluetooth_connection_service_subscribe(&handleBluetooth);
 }
 
 static void do_deinit(void) {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
 
-  window_destroy(s_data.window);
-
   text_layer_destroy(s_data.label1);
   text_layer_destroy(s_data.label2);
   text_layer_destroy(s_data.label3);
-	
+    
   text_layer_destroy(s_data.connection);
   text_layer_destroy(s_data.connectionBackground);
+
+  window_destroy(s_data.window);
 }
 
 int main(void) {
