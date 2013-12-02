@@ -22,7 +22,6 @@ static struct CommonWordsData {
 } s_data;
 
 static void updateTime(struct tm* t) {
-  /* time_to_words(t->tm_hour, t->tm_min, s_data.buffer, BUFFER_SIZE); */
   time_to_3words(t->tm_hour, t->tm_min, s_data.buffer1, s_data.buffer2, s_data.buffer3, BUFFER_SIZE);
     
   text_layer_set_text(s_data.label1, s_data.buffer1);
@@ -81,14 +80,14 @@ static void updateStatus()
     if (s_data.connected)
     {
       if (BATTERY_LIMIT<s_data.batteryState)
-        strcpy(s_data.bufferconnection, "connected"); 
-      else snprintf(s_data.bufferconnection, BUFFER_SIZE, "LOW BATTERY (%i)", s_data.batteryState);
+        strcpy(s_data.bufferconnection, ""); 
+      else snprintf(s_data.bufferconnection, BUFFER_SIZE, "DÅRLIG BATT (%i)", s_data.batteryState);
     } 
     else
     {
       if(BATTERY_LIMIT<s_data.batteryState)
-        strcpy(s_data.bufferconnection, "DISCONNECTED");
-      else snprintf(s_data.bufferconnection, BUFFER_SIZE, "DISC | LOW(%i)", s_data.batteryState);
+        strcpy(s_data.bufferconnection, "TELEFONEN!");
+      else snprintf(s_data.bufferconnection, BUFFER_SIZE, "TLF! | BATT(%i)", s_data.batteryState);
     }
     text_layer_set_text(s_data.connection, s_data.bufferconnection);
     
